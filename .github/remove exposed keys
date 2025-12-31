@@ -1,0 +1,55 @@
+Title: fix(secrets): remove exposed keys from .env and add .env.example
+
+Summary
+- Removed plaintext secrets from `.env` and added `.env.example` with placeholders.
+- Added `.gitignore` entry to ensure `.env` is not committed.
+- Added guidance for rotation and history-purging in the PR template.
+
+Files changed
+- `.env` — removed real secret values (replaced with placeholder or removed file from index)
+- `.env.example` — new (contains placeholders and explanatory comments)
+- `.gitignore` — ensure `.env` is ignored (if not already)
+- `.github/PULL_REQUEST_TEMPLATE.md` — added/updated to include secrets checklist
+
+What I changed
+- Removed these keys from the repo (examples found in the committed `.env`):
+  - `GROQ_API_KEY`
+  - `OPENAI_API_KEY`
+  - `SMTP_PASSWORD` (and other SMTP credentials)
+- Created `.env.example` with placeholders and short notes for each key.
+- Added `.env` to `.gitignore` and removed `.env` from the index using `git rm --cached .env`.
+
+Why
+- Plaintext secrets were committed and are visible publicly; this is a security risk and must be remediated immediately.
+
+Actions already taken in this branch
+1. Removed secrets from the working tree and committed the removal.
+2. Added `.env.example` with placeholders and explanatory comments.
+3. Added/updated `.gitignore` to ignore `.env`.
+4. Added PR template with a security checklist to help future contributors.
+
+Required immediate post-merge actions (do not skip)
+- [ ] Rotate the exposed keys in each provider console (OpenAI, Sanity/GROQ, SMTP provider, etc.).
+- [ ] Update deployment/CI secrets with the new rotated values.
+- [ ] If you need to purge secrets from git history, coordinate with all contributors and follow the purge guidance in the PR template (BFG recommended).
+
+Optional: Purge history guidance (use with care)
+```
+# remove a file completely from history (example)
+git filter-branch --force --index-filter "git rm --cached --ignore-unmatch .env" --prune-empty --tag-name-filter cat -- --all
+# or use BFG Repo Cleaner: https://rtyley.github.io/bfg-repo-cleaner/
+```
+Note: Rewriting history requires everyone to re-clone or rebase their work. Rotate keys before or immediately after purging.
+
+Suggested reviewers / owners
+- @repo-owner
+- @devops
+- @security
+
+Notes
+- I created this branch as a Draft PR so the team can rotate keys and coordinate history changes before merging.
+- I recommend rotating keys first, then optionally purging history if the secrets were present in older commits.
+
+How to use this file
+1. In the GitHub UI when creating the PR, copy the contents of this file and paste it into the PR description box.
+2. Set the PR to Draft. Tag the suggested reviewers and ping the ops/security team to rotate keys.
